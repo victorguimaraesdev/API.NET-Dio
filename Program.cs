@@ -1,12 +1,15 @@
 using API.NET.Domains.DTOs;
 using Microsoft.EntityFrameworkCore;
+using API.NET.Domains.Interfaces;
+using API.NET.Domains.Services;
+using Microsoft.AspNetCore.Mvc;
+using API.NET.Infrastructure.Db;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// builder.Services.AddScoped
-
+builder.Services.AddScoped<IAdministratorService, AdministratorService>();
+builder.Services.AddScoped<DataBase>();
 builder.Services.AddDbContext<DbContext>(options =>
 {
     options.UseMySql(
@@ -26,13 +29,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-
 app.MapGet("/", () => "Hello World");
 
 
-app.MapPost("/login", (LoginDTO loginDTO) =>
+app.MapPost("/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
 {
-    if (loginDTO.Email == "adm@teste.com" && loginDTO.Password == "123456")
+    if (administratorService.Login(loginDTO) != null)
     {
         return Results.Ok("Login realizado com sucesso");
     }
@@ -44,4 +46,3 @@ app.MapPost("/login", (LoginDTO loginDTO) =>
 
 
 app.Run();
-

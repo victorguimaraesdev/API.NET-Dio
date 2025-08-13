@@ -5,7 +5,7 @@ using API.NET.Domains.DTOs;
 
 namespace API.NET.Domains.Services;
 
-public class AdministratorService : IAdiministratorService
+public class AdministratorService : IAdministratorService
 {
     private readonly DataBase _db;
 

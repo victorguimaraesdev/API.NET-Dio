@@ -3,7 +3,7 @@ using API.NET.Entitys;
 
 namespace API.NET.Domains.Interfaces
 {
-    public interface IAdiministratorService
+    public interface IAdministratorService
     {
        Administrator Login (LoginDTO loginDTO);
     }

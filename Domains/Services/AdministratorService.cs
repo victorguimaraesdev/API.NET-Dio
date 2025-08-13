@@ -22,6 +22,5 @@ public class AdministratorService : IAdiministratorService
             throw new Exception("Usuário não encontrado");
         }
         return adm;
-        
     }
 }

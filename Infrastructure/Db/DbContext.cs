@@ -21,7 +21,7 @@ namespace API.NET.Infrastructure.Db
                 new Administrator
                 {
                     Id = 1,
-                    Email = "Administrator@email.com",
+                    Email = "adm@teste.com",
                     Password = "123456",
                     Profile = "Admin"
                 }

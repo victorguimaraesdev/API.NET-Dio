@@ -4,7 +4,9 @@ using API.NET.Domains.Interfaces;
 using API.NET.Domains.Services;
 using Microsoft.AspNetCore.Mvc;
 using API.NET.Infrastructure.Db;
+using API.NET.Domains.ModelViews;
 
+#region Builder & BuilderServices
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -17,7 +19,9 @@ builder.Services.AddDbContext<DbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("mysql"))
     );
 });
+#endregion
 
+#region App & Swagger
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -27,11 +31,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+#endregion
 
+#region Home
+app.MapGet("/", () => Results.Json(new Home()));
+#endregion
 
-app.MapGet("/", () => "Hello World");
-
-
+#region Login
 app.MapPost("/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
 {
     if (administratorService.Login(loginDTO) != null)
@@ -43,6 +49,6 @@ app.MapPost("/login", ([FromBody] LoginDTO loginDTO, IAdministratorService admin
         return Results.Unauthorized();
     }
 });
-
+#endregion
 
 app.Run();

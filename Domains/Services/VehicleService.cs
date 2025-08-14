@@ -14,7 +14,7 @@ public class VehicleService : IVehicleService
         _db = db;
     }
 
-    public List<Vehicle> All(int page = 1, string? name = null, string? model = null)
+    public List<Vehicle> All(int? page = 1, string? name = null, string? model = null)
     {
         var query = _db.Vehicles.AsQueryable();
 
@@ -25,7 +25,11 @@ public class VehicleService : IVehicleService
 
         int itensForPage = 10;
 
-        query = query.Skip((page - 1) * itensForPage).Take(itensForPage);
+        if (page != null)
+        {
+            query = query.Skip(((int)page - 1) * itensForPage).Take(itensForPage);
+        }
+      
 
         return query.ToList();
     }

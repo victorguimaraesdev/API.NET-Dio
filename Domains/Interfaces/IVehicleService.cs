@@ -5,7 +5,7 @@ namespace API.NET.Domains.Interfaces
 {
     public interface IVehicleService
     {
-        List<Vehicle> All(int page = 1, string? name = null, string? model = null);
+        List<Vehicle> All(int? page = 1, string? name = null, string? model = null);
 
         Vehicle? FindId(int id);
 

@@ -5,12 +5,14 @@ using API.NET.Domains.Services;
 using Microsoft.AspNetCore.Mvc;
 using API.NET.Infrastructure.Db;
 using API.NET.Domains.ModelViews;
+using API.NET.Entitys;
 
 #region Builder & BuilderServices
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAdministratorService, AdministratorService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<DataBase>();
 builder.Services.AddDbContext<DbContext>(options =>
 {
@@ -38,7 +40,7 @@ app.MapGet("/", () => Results.Json(new Home()));
 #endregion
 
 #region Login
-app.MapPost("/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
+app.MapPost("/administrador/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
 {
     if (administratorService.Login(loginDTO) != null)
     {
@@ -50,5 +52,32 @@ app.MapPost("/login", ([FromBody] LoginDTO loginDTO, IAdministratorService admin
     }
 });
 #endregion
+
+#region Vehicles
+
+app.MapPost("/veiculos", ([FromBody] VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
+{
+    var vehicle = new Vehicle
+    {
+        Name = vehicleDTO.Name,
+        Model = vehicleDTO.Model,
+        Year = vehicleDTO.Year
+    };
+
+    vehicleService.Save(vehicle);
+    return Results.Created($"/veiculo/{vehicle.Id}", vehicle);
+
+});
+
+app.MapGet("/veiculos", ([FromQuery] int? page, IVehicleService vehicleService) =>
+{
+    var vehicles = vehicleService.All(page);
+
+    return Results.Ok(vehicles);
+});
+
+
+#endregion
+
 
 app.Run();

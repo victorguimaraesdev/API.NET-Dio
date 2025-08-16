@@ -24,7 +24,7 @@ namespace API.NET.Infrastructure.Db
                     Id = 1,
                     Email = "adm@teste.com",
                     Password = "123456",
-                    Profile = "Admin"
+                    Profile = "Adm"
                 }
             );
         }

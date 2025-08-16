@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.NET.Infrastructure.Db;
 using API.NET.Domains.ModelViews;
 using API.NET.Entitys;
+using API.NET.Domains.Enuns;
 
 
 #region Builder & BuilderServices
@@ -40,8 +41,10 @@ app.UseHttpsRedirection();
 app.MapGet("/", () => Results.Json(new Home())).WithTags("Home");
 #endregion
 
-#region Login
-app.MapPost("/administrador/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
+#region AdiministratorLogin
+
+
+app.MapPost("/administradores/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
 {
     if (administratorService.Login(loginDTO) != null)
     {
@@ -51,7 +54,73 @@ app.MapPost("/administrador/login", ([FromBody] LoginDTO loginDTO, IAdministrato
     {
         return Results.Unauthorized();
     }
-}).WithTags("Login");
+}).WithTags("Administrators");
+
+app.MapPost("/administradores/", ([FromBody] AdministratorDTO administratorDTO, IAdministratorService administratorService) =>
+{
+    var validationError = new ValidationError
+    {
+        Messages = new List<string>()
+    };
+
+    if (string.IsNullOrEmpty(administratorDTO.Email))
+    {
+        validationError.Messages.Add("O E-mail não pode ser vazio");
+    }
+
+    if (string.IsNullOrEmpty(administratorDTO.Password))
+    {
+        validationError.Messages.Add("A senha não pode ser vazia");
+    }
+
+    if (administratorDTO.Profile == null)
+    {
+        validationError.Messages.Add("O perfil não pode ser vazio");
+    }
+
+    if (validationError.Messages.Count > 0)
+    {
+        return Results.BadRequest(validationError);
+    }
+
+    var administrator = new Administrator
+    {
+        Email = administratorDTO.Email,
+        Password = administratorDTO.Password,
+        Profile = administratorDTO.Profile.ToString() ?? Profile.Editor.ToString()
+    };
+
+    administratorService.Save(administrator);
+    return Results.Created($"/administrador/{administrator.Id}", administrator);
+
+}).WithTags("Administrators");
+
+app.MapGet("/administradores/", ([FromQuery] int? page, IAdministratorService administratorService) =>
+{
+    var adms = new List<AdministratorModelView>();
+    var administradors = administratorService.All(page);
+    foreach (var adm in administradors)
+    {
+        adms.Add(new AdministratorModelView
+        {
+            Id = adm.Id,
+            Email = adm.Email,
+            Profile = (Profile)Enum.Parse(typeof(Profile), adm.Profile)
+        });
+    }
+    return Results.Ok(adms);
+
+}).WithTags("Administrators");
+
+app.MapGet("/administradores/{id}", ([FromRoute] int id, IAdministratorService administratorService) =>
+{
+    var administrator = administratorService.Find(id);
+    if (administrator == null) return Results.NotFound();
+
+    return Results.Ok(administrator);
+
+}).WithTags("Administrators"); 
+
 #endregion
 
 #region ValidationError

@@ -23,4 +23,33 @@ public class AdministratorService : IAdministratorService
         }
         return adm;
     }
+
+    public Administrator Save(Administrator administrator)
+    {
+        _db.Administrators.Add(administrator);
+        _db.SaveChanges();
+
+        return administrator;
+    }
+
+    public Administrator? Find(int id)
+    {
+       return _db.Administrators.Where(v => v.Id == id).FirstOrDefault();
+    }
+    
+    public List<Administrator> All(int? page)
+    {
+        var query = _db.Administrators.AsQueryable();
+
+        int itensForPage = 10;
+
+        if (page != null)
+        {
+            query = query.Skip(((int)page - 1) * itensForPage).Take(itensForPage);
+        }
+
+
+        return query.ToList();
+    }
+
 }

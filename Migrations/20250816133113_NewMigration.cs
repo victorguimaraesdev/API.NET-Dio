@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.NET.Migrations
 {
     /// <inheritdoc />
-    public partial class AdministratorMigration : Migration
+    public partial class NewMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,6 +32,29 @@ namespace API.NET.Migrations
                     table.PrimaryKey("PK_Administrators", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Vehicles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Model = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Year = table.Column<int>(type: "int", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vehicles", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Administrators",
+                columns: new[] { "Id", "Email", "Password", "Profile" },
+                values: new object[] { 1, "adm@teste.com", "123456", "Adm" });
         }
 
         /// <inheritdoc />
@@ -39,6 +62,9 @@ namespace API.NET.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Administrators");
+
+            migrationBuilder.DropTable(
+                name: "Vehicles");
         }
     }
 }

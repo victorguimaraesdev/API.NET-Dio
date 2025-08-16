@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.NET.Migrations
 {
     [DbContext(typeof(DataBase))]
-    [Migration("20250812161805_AdministratorMigration")]
-    partial class AdministratorMigration
+    [Migration("20250816133113_NewMigration")]
+    partial class NewMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,40 @@ namespace API.NET.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Administrators");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "adm@teste.com",
+                            Password = "123456",
+                            Profile = "Adm"
+                        });
+                });
+
+            modelBuilder.Entity("API.NET.Entitys.Vehicle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("Year")
+                        .HasMaxLength(10)
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vehicles");
                 });
 #pragma warning restore 612, 618
         }

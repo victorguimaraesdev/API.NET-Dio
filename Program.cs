@@ -91,7 +91,12 @@ app.MapPost("/administradores/", ([FromBody] AdministratorDTO administratorDTO, 
     };
 
     administratorService.Save(administrator);
-    return Results.Created($"/administrador/{administrator.Id}", administrator);
+    return Results.Created($"/administrador/{administrator.Id}", new AdministratorModelView
+        {
+            Id = administrator.Id,
+            Email = administrator.Email,
+            Profile = administrator.Profile
+        });
 
 }).WithTags("Administrators");
 
@@ -105,7 +110,7 @@ app.MapGet("/administradores/", ([FromQuery] int? page, IAdministratorService ad
         {
             Id = adm.Id,
             Email = adm.Email,
-            Profile = (Profile)Enum.Parse(typeof(Profile), adm.Profile)
+            Profile = adm.Profile
         });
     }
     return Results.Ok(adms);
@@ -117,7 +122,12 @@ app.MapGet("/administradores/{id}", ([FromRoute] int id, IAdministratorService a
     var administrator = administratorService.Find(id);
     if (administrator == null) return Results.NotFound();
 
-    return Results.Ok(administrator);
+    return Results.Ok(new AdministratorModelView
+        {
+            Id = administrator.Id,
+            Email = administrator.Email,
+            Profile = administrator.Profile
+        });
 
 }).WithTags("Administrators"); 
 

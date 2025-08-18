@@ -7,6 +7,9 @@ using API.NET.Infrastructure.Db;
 using API.NET.Domains.ModelViews;
 using API.NET.Entitys;
 using API.NET.Domains.Enuns;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 #region Builder & BuilderServices
@@ -23,6 +26,23 @@ builder.Services.AddDbContext<DbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("mysql"))
     );
 });
+var key = builder.Configuration.GetSection("Jwt").ToString();
+if (string.IsNullOrEmpty(key)) key = "default";
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddJwtBearer(option =>
+{
+    option.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
+});
+builder.Services.AddAuthorization();
 #endregion
 
 #region App & Swagger
@@ -35,6 +55,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 #endregion
 
 #region Home

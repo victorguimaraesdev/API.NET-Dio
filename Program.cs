@@ -12,12 +12,40 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.OpenApi.Models;
 
 
 #region Builder & BuilderServices
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Insira o token JWT"
+    });
+      options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+
 builder.Services.AddScoped<IAdministratorService, AdministratorService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<DataBase>();
@@ -41,10 +69,13 @@ builder.Services.AddAuthentication(option =>
     option.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        ValidateIssuer = false,
+        ValidateAudience = false
     };
 });
 builder.Services.AddAuthorization();
+
 #endregion
 
 #region App & Swagger
@@ -62,7 +93,7 @@ app.UseAuthorization();
 #endregion
 
 #region Home
-app.MapGet("/", () => Results.Json(new Home())).WithTags("Home");
+app.MapGet("/", () => Results.Json(new Home())).AllowAnonymous().WithTags("Home");
 #endregion
 
 #region AdiministratorLogin
@@ -76,7 +107,7 @@ string GerarTokenJwt(Administrator administrator)
 
     var claims = new List<Claim>()
     {
-        new Claim(ClaimTypes.Email, administrator.Email),
+        new Claim("Email", administrator.Email),
         new Claim("Profile", administrator.Profile)
     };
 
@@ -108,7 +139,7 @@ app.MapPost("/administradores/login", ([FromBody] LoginDTO loginDTO, IAdministra
     {
         return Results.Unauthorized();
     }
-}).WithTags("Administrators");
+}).AllowAnonymous().WithTags("Administrators");
 
 app.MapPost("/administradores/", ([FromBody] AdministratorDTO administratorDTO, IAdministratorService administratorService) =>
 {

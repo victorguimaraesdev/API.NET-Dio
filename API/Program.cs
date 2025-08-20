@@ -13,6 +13,7 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 #region Builder & BuilderServices
@@ -108,7 +109,8 @@ string GerarTokenJwt(Administrator administrator)
     var claims = new List<Claim>()
     {
         new Claim("Email", administrator.Email),
-        new Claim("Profile", administrator.Profile)
+        new Claim("Profile", administrator.Profile),
+        new Claim(ClaimTypes.Role, administrator.Profile),
     };
 
     var token = new JwtSecurityToken(
@@ -183,7 +185,7 @@ app.MapPost("/administradores/", ([FromBody] AdministratorDTO administratorDTO, 
             Profile = administrator.Profile
         });
 
-}).RequireAuthorization().WithTags("Administrators");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm"}).WithTags("Administrators");
 
 app.MapGet("/administradores/", ([FromQuery] int? page, IAdministratorService administratorService) =>
 {
@@ -200,7 +202,7 @@ app.MapGet("/administradores/", ([FromQuery] int? page, IAdministratorService ad
     }
     return Results.Ok(adms);
 
-}).RequireAuthorization().WithTags("Administrators");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm"}).WithTags("Administrators");
 
 app.MapGet("/administradores/{id}", ([FromRoute] int id, IAdministratorService administratorService) =>
 {
@@ -214,33 +216,10 @@ app.MapGet("/administradores/{id}", ([FromRoute] int id, IAdministratorService a
             Profile = administrator.Profile
         });
 
-}).RequireAuthorization().WithTags("Administrators"); 
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm"}).WithTags("Administrators"); 
 
 #endregion
 
-#region ValidationError
-ValidationError validDTO(VehicleDTO vehicleDTO)
-{
-    var validationError = new ValidationError
-    {
-        Messages = new List<string>()
-    };
-
-    if (string.IsNullOrEmpty(vehicleDTO.Name))
-    {
-        validationError.Messages.Add("O nome não pode ser vazio.");
-    }
-    if (string.IsNullOrEmpty(vehicleDTO.Model))
-    {
-        validationError.Messages.Add("O modelo não pode ser vazio.");
-    }
-    if (vehicleDTO.Year < 1950)
-    {
-        validationError.Messages.Add("Ano do veiculo invalido ou vazio.");
-    }
-    return validationError;
-}
-#endregion
 
 #region Vehicles
 
@@ -264,7 +243,7 @@ app.MapPost("/veiculos", ([FromBody] VehicleDTO vehicleDTO, IVehicleService vehi
     vehicleService.Save(vehicle);
     return Results.Created($"/veiculo/{vehicle.Id}", vehicle);
 
-}).RequireAuthorization().WithTags("Vehicles");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm , Editor"}).WithTags("Vehicles");
 
 app.MapGet("/veiculos", ([FromQuery] int? page, IVehicleService vehicleService) =>
 {
@@ -281,7 +260,7 @@ app.MapGet("/veiculos/{id}", ([FromRoute] int id, IVehicleService vehicleService
 
     return Results.Ok(vehicle);
     
-}).RequireAuthorization().WithTags("Vehicles");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm , Editor"}).WithTags("Vehicles");
 
 app.MapPut("/veiculos/{id}", ([FromRoute] int id, VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
 {
@@ -302,7 +281,7 @@ app.MapPut("/veiculos/{id}", ([FromRoute] int id, VehicleDTO vehicleDTO, IVehicl
 
     return Results.Ok(vehicle);
 
-}).RequireAuthorization().WithTags("Vehicles");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm"}).WithTags("Vehicles");
 
 app.MapDelete("/veiculos/{id}", ([FromRoute] int id, IVehicleService vehicleService) =>
 {
@@ -313,9 +292,33 @@ app.MapDelete("/veiculos/{id}", ([FromRoute] int id, IVehicleService vehicleServ
 
     return Results.NoContent();
 
-}).RequireAuthorization().WithTags("Vehicles");
+}).RequireAuthorization().RequireAuthorization(new AuthorizeAttribute {Roles = "Adm"}).WithTags("Vehicles");
 
 #endregion
 
+#region ValidationError
 
+
+ValidationError validDTO(VehicleDTO vehicleDTO)
+{
+    var validationError = new ValidationError
+    {
+        Messages = new List<string>()
+    };
+
+    if (string.IsNullOrEmpty(vehicleDTO.Name))
+    {
+        validationError.Messages.Add("O nome não pode ser vazio.");
+    }
+    if (string.IsNullOrEmpty(vehicleDTO.Model))
+    {
+        validationError.Messages.Add("O modelo não pode ser vazio.");
+    }
+    if (vehicleDTO.Year < 1950)
+    {
+        validationError.Messages.Add("Ano do veiculo invalido ou vazio.");
+    }
+    return validationError;
+}
+#endregion
 app.Run();

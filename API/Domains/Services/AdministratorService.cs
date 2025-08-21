@@ -1,5 +1,5 @@
 using API.NET.Domains.Interfaces;
-using API.NET.Entitys;
+using API.NET.Domains.Entitys;
 using API.NET.Infrastructure.Db;
 using API.NET.Domains.DTOs;
 

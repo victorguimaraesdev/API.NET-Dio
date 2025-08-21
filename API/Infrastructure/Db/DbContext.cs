@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using API.NET.Entitys;
+using API.NET.Domains.Entitys;
 
 namespace API.NET.Infrastructure.Db
 {

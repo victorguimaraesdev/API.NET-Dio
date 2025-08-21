@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API.NET.Entitys;
+namespace API.NET.Domains.Entitys;
 
 public class Administrator
 {

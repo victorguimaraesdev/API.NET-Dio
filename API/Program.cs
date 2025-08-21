@@ -5,7 +5,7 @@ using API.NET.Domains.Services;
 using Microsoft.AspNetCore.Mvc;
 using API.NET.Infrastructure.Db;
 using API.NET.Domains.ModelViews;
-using API.NET.Entitys;
+using API.NET.Domains.Entitys;
 using API.NET.Domains.Enuns;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

@@ -1,5 +1,5 @@
 using API.NET.Domains.DTOs;
-using API.NET.Entitys;
+using API.NET.Domains.Entitys;
 
 namespace API.NET.Domains.Interfaces
 {
